@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Simple Chat App</title>
+  </head>
+  <style>
+    body {
+      margin: 0;
+      padding-bottom: 3rem;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+        Helvetica, Arial, sans-serif;
+    }
+
+    #form {
+      background: rgba(0, 0, 0, 0.15);
+      padding: 0.25rem;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      display: flex;
+      height: 3rem;
+      box-sizing: border-box;
+      backdrop-filter: blur(10px);
+    }
+    #input,
+    #room {
+      border: none;
+      padding: 0 1rem;
+      flex-grow: 1;
+      border-radius: 2rem;
+      margin: 0.25rem;
+    }
+    #input:focus,
+    #room:focus {
+      outline: none;
+    }
+    #form > button {
+      background: #333;
+      border: none;
+      padding: 0 1rem;
+      margin: 0.25rem;
+      border-radius: 3px;
+      outline: none;
+      color: #fff;
+    }
+
+    #messages {
+      list-style-type: none;
+      margin: 0;
+      padding: 0;
+    }
+    #messages > li {
+      padding: 0.5rem 1rem;
+    }
+    #messages > li:nth-child(odd) {
+      background: #efefef;
+    }
+  </style>
+  <body>
+    <ul id="messages"></ul>
+    <form id="form" action="">
+      <input id="input" autocomplete="off" /><button>Send</button>
+      <input id="room" autocomplete="off" /><button>Join</button>
+    </form>
+    <script
+      src="https://cdn.socket.io/4.1.2/socket.io.min.js"
+      integrity="sha384-toS6mmwu70G0fw54EGlWWeA4z3dyJ+dlXBtSURSKN4vyRFOcxd3Bzjj/AoOwY+Rg"
+      crossorigin="anonymous"
+    ></script>
+    <script>
+      const socket = io("http://localhost:8080")
+
+      const formEl = document.querySelector("#form")
+      const inputEl = document.querySelector("#input")
+      const roomEl = document.querySelector("#room")
+      const ulEl = document.querySelector("#messages")
+
+      const addNewMessage = msg => {
+        if (!msg) {
+          return
+        }
+        const liEl = document.createElement("li")
+        liEl.textContent = msg
+
+        ulEl.appendChild(liEl)
+      }
+
+      const handleSubmit = e => {
+        e.preventDefault()
+        if (inputEl.value) {
+          // addNewMessage(inputEl.value)
+          socket.emit("thuy", inputEl.value)
+          inputEl.value = ""
+        }
+      }
+
+      socket.on("connect", () => {
+        addNewMessage(`New connection with id ${socket.id}`)
+
+        formEl.addEventListener("submit", handleSubmit)
+
+        socket.on("chat message", message => {
+          addNewMessage(message)
+        })
+      })
+    </script>
+  </body>
+</html>
