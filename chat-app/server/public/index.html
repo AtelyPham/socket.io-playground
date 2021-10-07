@@ -15,14 +15,14 @@
     }
 
     #form {
-      background: rgba(0, 0, 0, 0.15);
+      background: rgba(0, 0, 0, 0.5);
       padding: 0.25rem;
       position: fixed;
       bottom: 0;
       left: 0;
       right: 0;
       display: flex;
-      height: 3rem;
+      height: 3.5rem;
       box-sizing: border-box;
       backdrop-filter: blur(10px);
     }
@@ -39,7 +39,7 @@
       outline: none;
     }
     #form > button {
-      background: #333;
+      background: rgb(5, 117, 232);
       border: none;
       padding: 0 1rem;
       margin: 0.25rem;
@@ -62,21 +62,21 @@
   </style>
   <body>
     <ul id="messages"></ul>
-    <form id="form" action="">
-      <input id="input" autocomplete="off" /><button>Send</button>
-      <input id="room" autocomplete="off" /><button>Join</button>
+    <form id="form">
+      <input
+        id="input"
+        autocomplete="off"
+        type="text"
+        placeholder="Enter your message here..."
+      />
+      <button>Send</button>
     </form>
-    <script
-      src="https://cdn.socket.io/4.1.2/socket.io.min.js"
-      integrity="sha384-toS6mmwu70G0fw54EGlWWeA4z3dyJ+dlXBtSURSKN4vyRFOcxd3Bzjj/AoOwY+Rg"
-      crossorigin="anonymous"
-    ></script>
+    <script src="/socket.io/socket.io.js"></script>
     <script>
-      const socket = io("http://localhost:8080")
+      const socket = io()
 
       const formEl = document.querySelector("#form")
       const inputEl = document.querySelector("#input")
-      const roomEl = document.querySelector("#room")
       const ulEl = document.querySelector("#messages")
 
       const addNewMessage = msg => {
@@ -89,11 +89,11 @@
         ulEl.appendChild(liEl)
       }
 
-      const handleSubmit = e => {
+      function handleSubmit(e) {
         e.preventDefault()
         if (inputEl.value) {
-          // addNewMessage(inputEl.value)
-          socket.emit("thuy", inputEl.value)
+          addNewMessage(inputEl.value)
+          socket.emit("chat_message", inputEl.value)
           inputEl.value = ""
         }
       }
@@ -103,7 +103,7 @@
 
         formEl.addEventListener("submit", handleSubmit)
 
-        socket.on("chat message", message => {
+        socket.on("chat_message", message => {
           addNewMessage(message)
         })
       })

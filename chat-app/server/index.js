@@ -9,23 +9,26 @@ const io = new Server(server, {
   cors: "*",
 })
 
-const messages = []
+app.get("/", (req, res) =>
+  res.sendFile("public/index.html", { root: __dirname })
+)
 
 io.on("connection", socket => {
   console.log(`New connection with id ${socket.id}`)
-  socket.on("thuy", message => {
-    messages.push(message)
-    console.log(messages)
-    socket.broadcast.emit("chat message", message)
+  socket.broadcast.emit("chat_message", `New connection with id ${socket.id}`)
+
+  socket.on("chat_message", message => {
+    socket.broadcast.emit("chat_message", message)
   })
 
   socket.on("disconnect", () => {
+    console.log(`User with id ${socket.id} disconntected`)
     socket.broadcast.emit(
-      "chat message",
+      "chat_message",
       `A user with id ${socket.id} is disconnected`
     )
   })
 })
 
-const PORT = process.env.PORT || 8080
+const PORT = process.env.PORT || 3000
 server.listen(PORT, () => console.log("Server is listening in port " + PORT))
