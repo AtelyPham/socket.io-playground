@@ -17,8 +17,8 @@ io.on("connection", socket => {
   console.log(`New connection with id ${socket.id}`)
   socket.broadcast.emit("chat_message", `New connection with id ${socket.id}`)
 
-  socket.on("chat_message", message => {
-    socket.broadcast.emit("chat_message", message)
+  socket.on("chat_message", ({ message, timeStr }) => {
+    socket.broadcast.emit("chat_message", { message, timeStr })
   })
 
   socket.on("disconnect", () => {

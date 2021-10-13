@@ -54,7 +54,9 @@
       padding: 0;
     }
     #messages > li {
-      padding: 0.5rem 1rem;
+      padding: 0rem 1rem;
+      display: flex;
+      justify-content: space-between;
     }
     #messages > li:nth-child(odd) {
       background: #efefef;
@@ -79,12 +81,20 @@
       const inputEl = document.querySelector("#input")
       const ulEl = document.querySelector("#messages")
 
-      const addNewMessage = msg => {
+      const addNewMessage = (msg, time) => {
         if (!msg) {
           return
         }
+
+        const msgP = document.createElement("p")
+        msgP.textContent = msg
+
+        const timeP = document.createElement("p")
+        timeP.textContent = time
+
         const liEl = document.createElement("li")
-        liEl.textContent = msg
+        liEl.appendChild(msgP)
+        liEl.appendChild(timeP)
 
         ulEl.appendChild(liEl)
       }
@@ -92,19 +102,26 @@
       function handleSubmit(e) {
         e.preventDefault()
         if (inputEl.value) {
-          addNewMessage(inputEl.value)
-          socket.emit("chat_message", inputEl.value)
+          const timeStr = new Date().toLocaleString()
+          addNewMessage(inputEl.value, timeStr)
+          socket.emit("chat_message", {
+            message: inputEl.value,
+            timeStr,
+          })
           inputEl.value = ""
         }
       }
 
       socket.on("connect", () => {
-        addNewMessage(`New connection with id ${socket.id}`)
+        addNewMessage(
+          `New connection with id ${socket.id}`,
+          new Date().toLocaleString()
+        )
 
         formEl.addEventListener("submit", handleSubmit)
 
-        socket.on("chat_message", message => {
-          addNewMessage(message)
+        socket.on("chat_message", ({ message, timeStr }) => {
+          addNewMessage(message, timeStr)
         })
       })
     </script>
